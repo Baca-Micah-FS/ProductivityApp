@@ -2,7 +2,16 @@ import * as SQLite from "expo-sqlite";
 
 import type { Priority, Task } from "../types/task";
 
-const databasePromise = SQLite.openDatabaseAsync("productivity.db");
+declare global {
+  // Preserve the web SQLite connection across Fast Refresh module reloads.
+  var productivityDatabasePromise: Promise<SQLite.SQLiteDatabase> | undefined;
+}
+
+function getDatabase() {
+  globalThis.productivityDatabasePromise ??=
+    SQLite.openDatabaseAsync("productivity.db");
+  return globalThis.productivityDatabasePromise;
+}
 
 type TaskRow = {
   id: number;
@@ -25,7 +34,7 @@ function mapTask(row: TaskRow): Task {
 }
 
 export async function initializeDatabase() {
-  const database = await databasePromise;
+  const database = await getDatabase();
   await database.execAsync(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS tasks (
@@ -40,7 +49,7 @@ export async function initializeDatabase() {
 }
 
 export async function getTasks(): Promise<Task[]> {
-  const database = await databasePromise;
+  const database = await getDatabase();
   const rows = await database.getAllAsync<TaskRow>(
     `SELECT id, title, description, priority, completed, created_at
      FROM tasks
@@ -56,7 +65,7 @@ export async function createTask(input: {
   description: string;
   priority: Priority;
 }) {
-  const database = await databasePromise;
+  const database = await getDatabase();
   await database.runAsync(
     `INSERT INTO tasks (title, description, priority, created_at)
      VALUES (?, ?, ?, ?)`,
@@ -68,7 +77,7 @@ export async function createTask(input: {
 }
 
 export async function setTaskCompleted(id: number, completed: boolean) {
-  const database = await databasePromise;
+  const database = await getDatabase();
   await database.runAsync(
     "UPDATE tasks SET completed = ? WHERE id = ?",
     completed ? 1 : 0,
@@ -77,6 +86,6 @@ export async function setTaskCompleted(id: number, completed: boolean) {
 }
 
 export async function deleteTask(id: number) {
-  const database = await databasePromise;
+  const database = await getDatabase();
   await database.runAsync("DELETE FROM tasks WHERE id = ?", id);
 }
