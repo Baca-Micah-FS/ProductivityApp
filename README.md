@@ -44,4 +44,4 @@ Tasks are stored in an Expo SQLite database. On native platforms, the user name 
 
 ## Known issues
 
-No known issues after TypeScript, Expo Doctor, production web export, browser startup, and iOS bundle testing. Final interaction testing and screenshots are still required before submission.
+No known issues after TypeScript checking, Expo Doctor, production web export, and interaction testing on web and the iOS Simulator.

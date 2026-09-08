@@ -7,3 +7,4 @@ Only issues that occurred during development are recorded here.
 3. Expo SQLite's web worker could not bundle its WASM file. Metro was configured with WASM asset support and the COEP/COOP headers required by the Expo SQLite SDK 57 documentation.
 4. The first browser run reported that NativeWind could not manually set the color scheme while dark mode used `media`. Tailwind was changed to class-controlled dark mode and Metro was restarted with a cleared cache.
 5. The iOS Simulator contained Expo Go for SDK 54. Expo installed the recommended Expo Go 57.0.9 before launching the app.
+6. Saving settings on web produced a `NoModificationAllowedError` because more than one SQLite access handle was opened for the same database file. The database service was changed to reuse one global SQLite connection promise across web refreshes.
